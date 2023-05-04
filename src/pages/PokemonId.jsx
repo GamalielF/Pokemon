@@ -3,6 +3,29 @@ import Header from '../components/pokedex/Header'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
 
+const backgroudByType = {
+  grass: "from-green-400 to-white",
+    fire: "from-orange-500 to-white",
+    normal: "from-amber-800 to-white",
+    fighting: "from-yellow-900 to-white",
+    flying: "from-red-500 to-white",
+    poison: "from-violet-500 to-white",
+    ground: "from-orange-800 to-white",
+    rock: "from-stone-600 to-white",
+    bug: "from-green-500 to-white",
+    ghost: "from-indigo-700 to-white",
+    steel: "from-teal-800 to-white",
+    water: "from-sky-400 to-white",
+    electric: "from-yellow-400 to-white",
+    psychic: "from-cyan-700 to-white",
+    ice: "from-cyan-300 to-white",
+    dragon: "from-sky-600 to-white",
+    dark: "from-zinc-900 to-white",
+    fairy: "from-pink-500 to-white",
+    unknown: "from-slate-600 to-white",
+    shadow: "from-stone-800 to-white",
+}
+
 const PokemonId = () => {
 
     const {id} = useParams()
@@ -32,7 +55,7 @@ const PokemonId = () => {
             <article className='max-w-[770px] mx-auto shadow-lg p-2' >
 
                 {/* //seccion Superior */}
-                <section className='bg-gradient-to-b from-green-500 to-black relative h-[150px]'>
+                <section className={`bg-gradient-to-b ${backgroudByType[pokemon?.types[0].type.name]} rounded-tl-lg rounded-tr-lg relative h-[140px]`}>
                     <div className='w-[200px] mx-auto absolute left-1/2 -translate-x-1/2 -top-14'>
                     <img src={pokemon?.sprites.other["official-artwork"].front_default} alt="" />
                 </div>
@@ -41,30 +64,28 @@ const PokemonId = () => {
 
                 {/* informacigón general */}
                 
-                <section>
-                    <div className='flex'>
-                        <h3>#{pokemon?.id}</h3>
+                <section className='bg-white p-6 rounded-bl-lg rounded-br-lg'>
+                    <div className='mx-auto border-2 max-w-max px-6 mb-4 rounded-md'>
+                        <h3 className='font-semibold'>#{pokemon?.id}</h3>
                     </div>
 
                     <div className='grid grid-cols-[1fr_auto_1fr] items-center gap-2'>
                         <hr />
-                        <h2 className='capitalize font-bold'>{pokemon?.name}</h2>
+                        <h2 className='text-2xl md:text-3xl capitalize font-bold'>{pokemon?.name}</h2>
                     <hr />
                     </div>
 
+                            <div className='flex justify-center gap-6 text-center text-xs p-6 '>
+                                <div className='grid gap-2'>
+                                    <h5 className='text-2xl md:text-3xl capitalize font-light '>Weight</h5>
+                                    <span className='font-bold text-sm'>{pokemon?.weight}</span>
+                                </div>
 
-                    <div className='flex justify-center gap-6 text-center'>
-                        <div>
-                            <h5>Weigth</h5>
-                            <span>{pokemon?.weight}</span>
-                        </div>
-                        <div>
-                        <div>
-                            <h5>Heigth</h5>
-                            <span>{pokemon?.height}</span>
-                        </div>
-                    </div>
-                    </div>
+                                <div className='grid gap-2'>
+                                    <h5 className='text-2xl md:text-3xl capitalize font-light'>Height</h5>
+                                    <span className='font-bold text-sm'>{pokemon?.height}</span>
+                                </div>
+                            </div>
 
                     <section className='grid sm:grid-cols-2 gap-4'>
                         {/* tipos  */}

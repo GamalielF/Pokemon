@@ -1,6 +1,7 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
 import { setNameTrainer } from '../../store/slices/nameTrainer.slice'
+import { Link } from 'react-router-dom'
 
 
 const Header = () => {
@@ -15,7 +16,10 @@ const Header = () => {
     <section className='relative'>
         <div className="h-16 bg-red-600">
             <div className='max-w-[200px] sm:max-w-[300px] ms-2'>
-                <img src="/images/pokedex.png" alt="" />
+               <Link to={"/"} className='max-w-[200px] sm:max-w-[300px] ms-2'>
+               <img src="/images/pokedex.png" alt="" />
+               </Link>
+                
             </div>
         </div>
 
