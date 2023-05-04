@@ -1,112 +1,102 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import Header from '../components/pokedex/Header'
 import { useSelector } from 'react-redux'
 import axios from 'axios'
 import PokemonCard from '../components/pokedex/PokemonCard'
+import { paginationLogic } from '../utils/pagination'
 
 const Pokedex = () => {
-    const [pokemons, setPokemons] = useState([])
+    const [pokemons, setPokemons] = useState([]);
 
-    const [pokemonName, setPokemonName] = useState("")
+    const [pokemonName, setPokemonName] = useState("");
 
-    const [types, setTypes] = useState([])
+    const [types, setTypes] = useState([]);
 
-    const [currentType, setCurrentType] = useState("")
-    const [currentPage, setCurrentPage] = useState(1)
+    const [currentType, setCurrentType] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
 
-    const nameTrainer = useSelector(store => store.nameTrainer)
+    const [pokesPerPage, setPokesPerPage] = useState(12);
+
+    const input = useRef(null)
+
+    const nameTrainer = useSelector((store) => store.nameTrainer);
 
     const handleSubmit = (e) => {
-        e.preventDefault()
-        setPokemonName(e.target.pokemonName.value)
-    }
+        e.preventDefault();
+        setPokemonName(e.target.pokemonName.value);
+    };
 
-    const pokemonsByName = pokemons.filter(pokemon => pokemon.name.toLowerCase().includes(pokemonName.toLowerCase()))
+    const pokemonsByName = pokemons.filter((pokemon) =>
+        pokemon.name.toLowerCase().includes(pokemonName.toLowerCase())
+    );
 
-    const paginationLogic = () => {
-        // Cantidad de pokemones por página
-        const POKEMONS_PER_PAGE = 12
-
-        // Pokemones que se van a mostrar en la página actual
-        const sliceStart = (currentPage - 1) * POKEMONS_PER_PAGE
-        const sliceEnd = sliceStart + POKEMONS_PER_PAGE
-        const pokemonInPage = pokemonsByName.slice(sliceStart, sliceEnd)
-
-        const lastPage = pokemonsByName.length
-            ? Math.ceil(pokemonsByName.length / POKEMONS_PER_PAGE)
-            : 1;
-
-        const PAGES_PER_BLOCK = 5
-        const actualBlock = Math.ceil(currentPage / PAGES_PER_BLOCK)
-
-        const pagesInBlock = []
-        const minPage = (actualBlock - 1) * PAGES_PER_BLOCK + 1
-        const maxPage = actualBlock * PAGES_PER_BLOCK
-        for(let i = minPage; i <= maxPage; i++){
-            if(i<= lastPage){
-                pagesInBlock.push(i)
-            }
-        }
-
-        return { pokemonInPage, lastPage, pagesInBlock }
-    }
     
-    const { pokemonInPage, lastPage, pagesInBlock } = paginationLogic()
 
+    const { pokemonInPage, lastPage, pagesInBlock, PAGES_PER_BLOCK } = useMemo(() => paginationLogic(currentPage, pokemonsByName, pokesPerPage), [currentPage, pokemons, pokemonName, currentType, pokesPerPage]) 
 
     const handleClickPreviousPage = () => {
-        const newCurrentPage = currentPage - 1
-        if(newCurrentPage >= 1) {
-            setCurrentPage(newCurrentPage)
+        const newCurrentPage = currentPage - 1;
+        if (newCurrentPage >= 1) {
+        setCurrentPage(newCurrentPage);
         }
-    }
+    };
 
     const handleClickNextPage = () => {
-        const newCurrentPage = currentPage + 1
-        if(newCurrentPage <= lastPage) {
-            setCurrentPage(newCurrentPage)
+        const newCurrentPage = currentPage + 1;
+        if (newCurrentPage <= lastPage) {
+        setCurrentPage(newCurrentPage);
         }
-    }
-    
+    };
 
     useEffect(() => {
-        if(!currentType) {
-            const URL = "https://pokeapi.co/api/v2/pokemon?limit=1281"
-    
-            axios.get(URL)
+        if (!currentType) {
+        const URL = "https://pokeapi.co/api/v2/pokemon?limit=1281";
+
+        axios
+            .get(URL)
             .then((res) => setPokemons(res.data.results))
-            .catch((err) => console.log(err))
+            .catch((err) => console.log(err));
         }
-    }, [currentType])
+    }, [currentType]);
 
     useEffect(() => {
-        const URL = "https://pokeapi.co/api/v2/type"
+        const URL = "https://pokeapi.co/api/v2/type";
 
-        axios.get(URL)
+        axios
+        .get(URL)
         .then((res) => {
-            const newTypes = res.data.results.map(type => type.name)
-            setTypes(newTypes)
-        }) 
-        .catch((err) => console.log(err))
-    }, [])
+            const newTypes = res.data.results.map((type) => type.name);
+            setTypes(newTypes);
+        })
+        .catch((err) => console.log(err));
+    }, []);
 
     useEffect(() => {
-        if(currentType){
-            const URL = `https://pokeapi.co/api/v2/type/${currentType}/`
+        if (currentType) {
+        const URL = `https://pokeapi.co/api/v2/type/${currentType}/`;
 
-            axios.get(URL)
+        axios
+            .get(URL)
             .then((res) => {
-                const pokemonsByType = res.data.pokemon.map(pokemon => pokemon.pokemon)
-                setPokemons(pokemonsByType)
-            } )
-            .catch((err) => console.log(err))
+            const pokemonsByType = res.data.pokemon.map(
+                (pokemon) => pokemon.pokemon
+            );
+            setPokemons(pokemonsByType);
+            })
+            .catch((err) => console.log(err));
         }
-        
+    }, [currentType]);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [pokemonName, currentType]);
+
+    useEffect(() => {
+        setPokemonName("")
+        input.current.value = ""
     }, [currentType])
 
-    useEffect(()=> {
-        setCurrentPage(1)
-    }, [pokemonName, currentType])
+
 
     return (
             <section className='min-h-screen bg-gray-100'>
@@ -117,7 +107,7 @@ const Pokedex = () => {
 </h3>
   <form className='flex flex-col items-center justify-center mt-6 space-y-2 md:flex-row md:space-y-0 md:space-x-2' onSubmit={handleSubmit}>
     <div className='relative flex items-center w-full'>
-      <input type="text" id="pokemonName" placeholder='Search your Pokémon' className='px-4 py-2 w-full text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent' />
+      <input ref={input} type="text" id="pokemonName" placeholder='Search your Pokémon' className='px-4 py-2 w-full text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent' />
       <button className='px-4 py-2 font-bold text-white bg-yellow-500 rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50'>
         Search
       </button>
